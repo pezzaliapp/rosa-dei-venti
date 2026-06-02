@@ -104,13 +104,17 @@
   svg#compass{width:100%;height:100%;display:block;overflow:visible}
   #rose{transform-origin:250px 250px;transition:transform .12s linear}
   #windNeedle{transform-origin:250px 250px;transition:transform .25s ease-out}
-  .readout{
-    position:absolute;inset:0;display:flex;flex-direction:column;
-    align-items:center;justify-content:center;pointer-events:none;text-align:center;
+
+  /* Badge lettura bussola — FUORI dalla rosa, non sovrapposto */
+  .hdg-badge{
+    display:inline-flex;flex-direction:column;align-items:center;gap:1px;
+    margin:0 auto 8px;padding:7px 20px;
+    background:#08182a;border:1px solid var(--line);border-radius:14px;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
   }
-  .readout .hdg{font-family:"Cinzel",serif;font-size:clamp(26px,9vw,40px);color:var(--gold);line-height:1}
-  .readout .hdg small{font-size:.5em;color:var(--muted);font-family:"Spectral",serif}
-  .readout .lbl{font-size:12px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;margin-top:4px}
+  .hdg-badge .hdg-num{font-family:"Cinzel",serif;font-size:30px;color:var(--gold);line-height:1.05;letter-spacing:.02em}
+  .hdg-badge .hdg-num small{font-size:.5em;color:var(--muted);font-family:"Spectral",serif}
+  .hdg-badge .hdg-mode{font-size:10.5px;color:var(--muted);letter-spacing:.2em;text-transform:uppercase}
 
   .compass-actions{margin-top:14px}
   .hint{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px;min-height:1.2em}
@@ -177,47 +181,54 @@
 
   <!-- Bussola -->
   <section class="card compass-card">
+    <div style="text-align:center">
+      <div class="hdg-badge">
+        <span class="hdg-num" id="hdgVal">—<small>°</small></span>
+        <span class="hdg-mode" id="hdgMode">Nord in alto</span>
+      </div>
+    </div>
     <div class="compass-wrap">
       <svg id="compass" viewBox="0 0 500 500" role="img" aria-label="Rosa dei venti">
         <defs>
-          <radialGradient id="dial" cx="50%" cy="46%" r="60%">
-            <stop offset="0%" stop-color="#123150"/>
-            <stop offset="70%" stop-color="#0c2238"/>
-            <stop offset="100%" stop-color="#081726"/>
+          <radialGradient id="dial" cx="50%" cy="44%" r="62%">
+            <stop offset="0%" stop-color="#0f2b48"/>
+            <stop offset="62%" stop-color="#0a2138"/>
+            <stop offset="100%" stop-color="#061525"/>
           </radialGradient>
           <linearGradient id="brassG" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="#f1d28a"/>
             <stop offset="100%" stop-color="#b9914a"/>
           </linearGradient>
+          <filter id="glow" x="-60%" y="-60%" width="220%" height="220%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
         </defs>
 
         <!-- ghiera esterna -->
         <circle cx="250" cy="250" r="244" fill="none" stroke="url(#brassG)" stroke-width="6"/>
-        <circle cx="250" cy="250" r="236" fill="url(#dial)" stroke="rgba(216,179,106,.35)" stroke-width="1.5"/>
+        <circle cx="250" cy="250" r="236" fill="url(#dial)" stroke="rgba(216,179,106,.30)" stroke-width="1.5"/>
 
         <!-- ROSA che ruota -->
         <g id="rose">
           <g id="ticksLayer"></g>
           <g id="starLayer"></g>
           <g id="labelsLayer"></g>
-          <!-- ago del vento (agganciato al dato Open-Meteo) -->
+          <!-- area centrale scura pulita -->
+          <circle cx="250" cy="250" r="30" fill="#061525" stroke="rgba(216,179,106,.22)" stroke-width="1"/>
+          <!-- ago del vento (uno solo, ciano, in primo piano sopra la stella) -->
           <g id="windNeedle">
-            <polygon points="250,72 264,150 250,250 236,150" fill="#34e0e0" stroke="#0a3a3a" stroke-width="1"/>
-            <polygon points="250,250 258,330 250,392 242,330" fill="rgba(52,224,224,.28)" stroke="rgba(52,224,224,.5)" stroke-width="1"/>
-            <circle cx="250" cy="250" r="9" fill="#0c2238" stroke="#34e0e0" stroke-width="2"/>
+            <g filter="url(#glow)">
+              <polygon points="250,82 254.5,250 245.5,250" fill="#34e0e0"/>
+              <polygon points="250,82 244,116 256,116" fill="#9af6f6"/>
+              <circle cx="250" cy="250" r="7.5" fill="#05202a" stroke="#34e0e0" stroke-width="2"/>
+            </g>
           </g>
         </g>
 
         <!-- indice FISSO in alto (direzione del telefono) -->
-        <polygon id="topIndex" points="250,16 234,52 266,52" fill="url(#brassG)" stroke="#7a5e22" stroke-width="1"/>
-        <!-- mozzo centrale fisso -->
-        <circle cx="250" cy="250" r="6" fill="url(#brassG)"/>
+        <polygon id="topIndex" points="250,18 235,52 265,52" fill="url(#brassG)" stroke="#7a5e22" stroke-width="1"/>
       </svg>
-
-      <div class="readout">
-        <div class="hdg" id="hdgVal">—<small>°</small></div>
-        <div class="lbl" id="hdgMode">Nord in alto</div>
-      </div>
     </div>
 
     <div class="compass-actions row between">
@@ -342,51 +353,53 @@ function buildRose(){
   for (var d = 0; d < 360; d += 5){
     var major = (d % 45 === 0);
     var med   = (d % 15 === 0);
-    var outer = 230;
-    var len = major ? 26 : (med ? 16 : 9);
+    var outer = 232;
+    var len = major ? 20 : (med ? 13 : 7);
     var p1 = pt(outer, d);
     var p2 = pt(outer - len, d);
     ticks.appendChild(svgEl("line", {
       x1:p1[0], y1:p1[1], x2:p2[0], y2:p2[1],
-      stroke: major ? "#f1d28a" : "rgba(216,179,106,.45)",
-      "stroke-width": major ? 3 : (med ? 2 : 1)
+      stroke: major ? "rgba(241,210,138,.9)" : "rgba(216,179,106,.35)",
+      "stroke-width": major ? 2.5 : (med ? 1.5 : 1)
     }));
   }
 
+  // Stella: 8 punte principali + 8 secondarie più corte e tenui (max ~55% del raggio)
   var star = $("starLayer");
   for (var i = 0; i < 16; i++){
     var deg = i * 22.5;
     var main = (i % 2 === 0);
-    var R = main ? 206 : 150;
-    var w = main ? 24 : 15;
+    var R = main ? 132 : 88;   // punte entro ~55% del raggio del quadrante
+    var w = main ? 15 : 9;
     var rad = deg * Math.PI / 180;
     var dirx = Math.sin(rad), diry = -Math.cos(rad);
     var perpx = Math.cos(rad), perpy = Math.sin(rad);
-    var sh = main ? 34 : 26;
+    var sh = main ? 26 : 20;
     var tip = [250 + R*dirx, 250 + R*diry];
     var sL  = [250 + sh*dirx - w*perpx, 250 + sh*diry - w*perpy];
     var sR  = [250 + sh*dirx + w*perpx, 250 + sh*diry + w*perpy];
     star.appendChild(svgEl("polygon", {
       points: tip[0]+","+tip[1]+" "+sR[0]+","+sR[1]+" 250,250",
-      fill: main ? "rgba(216,179,106,.85)" : "rgba(155,180,208,.45)"
+      fill: main ? "rgba(216,179,106,.50)" : "rgba(150,178,208,.16)"
     }));
     star.appendChild(svgEl("polygon", {
       points: tip[0]+","+tip[1]+" "+sL[0]+","+sL[1]+" 250,250",
-      fill: main ? "rgba(185,145,74,.95)" : "rgba(110,135,165,.55)"
+      fill: main ? "rgba(185,145,74,.72)" : "rgba(110,140,170,.24)"
     }));
   }
 
+  // Etichette orizzontali, staccate dal bordo, oro chiaro; N evidenziata
   var labels = $("labelsLayer");
   var dirs = ["N","NE","E","SE","S","SO","O","NO"];
   for (var j = 0; j < 8; j++){
-    var p = pt(222, j * 45);
+    var p = pt(196, j * 45);
     var t = svgEl("text", {
       x:p[0], y:p[1],
       "text-anchor":"middle","dominant-baseline":"central",
       "font-family":"Cinzel, serif",
-      "font-size": (j===0?26:20),
+      "font-size": (j===0?24:18),
       "font-weight":700,
-      fill: (j===0 ? "#e0556b" : "#f1d28a")
+      fill: (j===0 ? "#ff7a8c" : "#f3d79a")
     });
     t.textContent = dirs[j];
     labels.appendChild(t);
@@ -581,27 +594,32 @@ function setPlace(name, sub){
 /* ============================================================
    Caricamento meteo (Open-Meteo)
    ============================================================ */
+var loadSeq = 0;   // l'ultima richiesta vince: evita che una risposta vecchia (es. Roma) sovrascriva il GPS
 function loadWeather(){
+  var myId = ++loadSeq;
+  var reqLat = +state.lat, reqLon = +state.lon, reqName = state.placeName;
   setErr("");
-  setPlace(state.placeName, '<span class="spin"></span> Aggiorno i dati…');
+  setPlace(reqName, '<span class="spin"></span> Aggiorno i dati…');
   var url = "https://api.open-meteo.com/v1/forecast"
-    + "?latitude=" + encodeURIComponent(state.lat)
-    + "&longitude=" + encodeURIComponent(state.lon)
+    + "?latitude=" + encodeURIComponent(reqLat)
+    + "&longitude=" + encodeURIComponent(reqLon)
     + "&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
     + "&wind_speed_unit=kmh";
 
   return fetchJSON(url, 8000).then(function(data){
+    if (myId !== loadSeq) return;   // una richiesta più recente l'ha superata: ignora
     var c = data && data.current;
     if (!c) throw new Error("risposta senza dati correnti");
     state.windDir = +c.wind_direction_10m || 0;   // direzione DA CUI proviene il vento
     state.windKmh = +c.wind_speed_10m || 0;
     state.gustKmh = +c.wind_gusts_10m || 0;
     state.temp    = (c.temperature_2m == null ? null : +c.temperature_2m);
-    setPlace(state.placeName, "lat " + (+state.lat).toFixed(3) + " · lon " + (+state.lon).toFixed(3));
+    setPlace(reqName, "lat " + reqLat.toFixed(3) + " · lon " + reqLon.toFixed(3));
     render();
   }).catch(function(e){
+    if (myId !== loadSeq) return;
     setErr("Impossibile caricare i dati meteo (" + e.message + "). Riprova.");
-    setPlace(state.placeName, "Dati non disponibili");
+    setPlace(reqName, "Dati non disponibili");
   });
 }
 
@@ -631,20 +649,29 @@ function searchCity(name){
 /* ============================================================
    Geolocalizzazione del dispositivo
    ============================================================ */
-function geolocate(silent){
+function geolocate(){
   if (!("geolocation" in navigator)){
-    if (!silent) setErr("Geolocalizzazione non supportata dal dispositivo.");
+    setErr("Geolocalizzazione non supportata da questo dispositivo.");
     return;
   }
-  if (!silent) setPlace(state.placeName, '<span class="spin"></span> Cerco la tua posizione…');
+  setErr("");
+  setPlace("Posizione attuale", '<span class="spin"></span> Cerco la tua posizione…');
   navigator.geolocation.getCurrentPosition(function(pos){
+    // La posizione REALE del dispositivo ha la precedenza su qualsiasi default.
     state.lat = pos.coords.latitude;
     state.lon = pos.coords.longitude;
     state.placeName = "Posizione attuale";
-    loadWeather();
-  }, function(){
-    if (!silent) setErr("Posizione non concessa o non disponibile. Resto sulla località corrente.");
-  }, { enableHighAccuracy:false, timeout:8000, maximumAge:300000 });
+    loadWeather();   // ricarica i dati Open-Meteo con le coordinate reali del GPS
+  }, function(err){
+    var msg = "Impossibile ottenere la posizione.";
+    if (err){
+      if (err.code === 1) msg = "Permesso di geolocalizzazione negato. Autorizzalo nelle impostazioni del browser/telefono.";
+      else if (err.code === 2) msg = "Posizione non disponibile in questo momento. Riprova.";
+      else if (err.code === 3) msg = "Tempo scaduto nel rilevare la posizione. Riprova.";
+    }
+    setErr(msg);   // niente fallback silenzioso: mostriamo l'errore e restiamo sulla località precedente
+    setPlace(state.placeName, "Posizione non aggiornata");
+  }, { enableHighAccuracy:true, timeout:10000, maximumAge:0 });
 }
 
 /* ============================================================
@@ -670,7 +697,7 @@ function init(){
     e.preventDefault();
     searchCity($("cityInput").value);
   });
-  $("geoBtn").addEventListener("click", function(){ geolocate(false); });
+  $("geoBtn").addEventListener("click", geolocate);
   $("reloadBtn").addEventListener("click", loadWeather);
   $("compassBtn").addEventListener("click", toggleCompass);
   $("units").addEventListener("click", function(e){
@@ -678,8 +705,9 @@ function init(){
     if (b) setUnit(b.getAttribute("data-u"));
   });
 
-  // 1) carica subito Roma (UI mai vuota), 2) prova geolocalizzazione silenziosa
-  loadWeather().then(function(){ geolocate(true); });
+  // Roma è solo il default iniziale: resta finché l'utente non cerca una città
+  // o non tocca "Posizione attuale". Nessuna geolocalizzazione automatica.
+  loadWeather();
 
   // Service worker solo su http/https
   if ("serviceWorker" in navigator && (location.protocol === "http:" || location.protocol === "https:")){
