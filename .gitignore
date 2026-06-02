@@ -1,0 +1,5 @@
+# Configurazione locale di Claude Code
+.claude/
+
+# Sistema
+.DS_Store
