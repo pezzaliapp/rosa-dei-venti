@@ -227,7 +227,7 @@
         </g>
 
         <!-- indice FISSO in alto (direzione del telefono) -->
-        <polygon id="topIndex" points="250,18 235,52 265,52" fill="url(#brassG)" stroke="#7a5e22" stroke-width="1"/>
+        <polygon id="topIndex" points="250,44 235,12 265,12" fill="url(#brassG)" stroke="#7a5e22" stroke-width="1"/>
       </svg>
     </div>
 
@@ -394,7 +394,7 @@ function buildRose(){
   var dirs = ["N","NE","E","SE","S","SO","O","NO"];
   labelEls = [];
   for (var j = 0; j < 8; j++){
-    var p = pt(196, j * 45);
+    var p = pt(178, j * 45);   // raggio ridotto: nessuna lettera tocca il bordo o l'indice fisso
     var t = svgEl("text", {
       x:p[0], y:p[1],
       "text-anchor":"middle","dominant-baseline":"central",
