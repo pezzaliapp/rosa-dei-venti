@@ -102,7 +102,7 @@
   .compass-card{padding:10px 14px 18px}
   .compass-wrap{position:relative;width:100%;max-width:420px;margin:6px auto 0;aspect-ratio:1/1}
   svg#compass{width:100%;height:100%;display:block;overflow:visible}
-  #rose{transform-origin:250px 250px;transition:transform .12s linear}
+  #rose{transform-origin:250px 250px;transition:transform .06s linear}
   #windNeedle{transform-origin:250px 250px;transition:transform .25s ease-out}
 
   /* Badge lettura bussola — FUORI dalla rosa, non sovrapposto */
@@ -388,9 +388,11 @@ function buildRose(){
     }));
   }
 
-  // Etichette orizzontali, staccate dal bordo, oro chiaro; N evidenziata
+  // Etichette orizzontali, staccate dal bordo, oro chiaro; N evidenziata.
+  // Restano SEMPRE dritte: ogni lettera viene contro-ruotata attorno al proprio centro.
   var labels = $("labelsLayer");
   var dirs = ["N","NE","E","SE","S","SO","O","NO"];
+  labelEls = [];
   for (var j = 0; j < 8; j++){
     var p = pt(196, j * 45);
     var t = svgEl("text", {
@@ -403,6 +405,19 @@ function buildRose(){
     });
     t.textContent = dirs[j];
     labels.appendChild(t);
+    labelEls.push({ el:t, x:p[0], y:p[1] });
+  }
+  updateLabels();
+}
+
+// Contro-rotazione delle etichette: annulla la rotazione della rosa (roseAngle)
+// attorno al centro di ciascuna lettera -> testo sempre orizzontale.
+function updateLabels(){
+  if (!labelEls) return;
+  var a = -roseAngle;
+  for (var i = 0; i < labelEls.length; i++){
+    var L = labelEls[i];
+    L.el.setAttribute("transform", "rotate(" + a + " " + L.x + " " + L.y + ")");
   }
 }
 
@@ -412,6 +427,7 @@ function buildRose(){
 var roseAngle = 0;           // angolo continuo applicato alla rosa (gradi)
 var smoothHeading = null;    // heading filtrato (low-pass su angolo continuo)
 var headingAvailable = false;
+var labelEls = null;         // riferimenti alle etichette (per tenerle dritte)
 
 function applyRose(){
   var rose = $("rose");
@@ -424,6 +440,7 @@ function applyRose(){
     roseAngle = 0;
     rose.style.transform = "rotate(0deg)";
   }
+  updateLabels();   // le etichette restano sempre orizzontali
 }
 
 function onOrientation(ev){
@@ -439,11 +456,12 @@ function onOrientation(ev){
 
   headingAvailable = true;
 
-  // low-pass su angolo continuo (gestisce il wrap 359->0)
+  // low-pass su angolo continuo (gestisce il wrap 359->0).
+  // Fattore di follow alto -> insegue il movimento quasi in tempo reale.
   if (smoothHeading === null){
     smoothHeading = hd;
   } else {
-    smoothHeading = norm360(smoothHeading + to180(hd - smoothHeading) * 0.18);
+    smoothHeading = norm360(smoothHeading + to180(hd - smoothHeading) * 0.45);
   }
   state.heading = smoothHeading;
 
