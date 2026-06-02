@@ -1,0 +1,32 @@
+ROSA DEI VENTI — PWA (pronta per GitHub Pages)
+
+FILE (tutti nella root del repo):
+  index.html  manifest.json  sw.js
+  icon-192.png  icon-512.png  icon-maskable.png
+
+PERCORSI
+  Tutti i riferimenti sono RELATIVI (./, manifest.json, sw.js, icon-*.png),
+  quindi funziona sia in https://utente.github.io/  sia in
+  https://utente.github.io/nome-repo/  senza modifiche.
+
+PUBBLICARE SU GITHUB PAGES
+  1. Crea un repository e carica questi file nella ROOT.
+  2. Settings > Pages > Source: "Deploy from a branch"
+     Branch: main  —  Cartella: / (root)  —  Save.
+  3. Dopo ~1 minuto: https://<utente>.github.io/<repo>/
+  IMPORTANTE: usa il link di GitHub PAGES, non il link "raw"
+  (il raw mostra il codice come testo e non esegue l'app).
+
+COSA FUNZIONA SU PAGES (HTTPS)
+  - Ricerca località (sempre)
+  - "La mia posizione" (GPS) — richiede HTTPS, su Pages c'è
+  - Installazione: iOS Safari > Condividi > Aggiungi a Home;
+    Android Chrome > "Installa app"
+
+NOTA TECNICA (verificata)
+  - I dati del vento (Open-Meteo) NON richiedono HTTPS: l'API abilita il CORS.
+  - Solo la GEOLOCALIZZAZIONE e il SERVICE WORKER richiedono un contesto
+    sicuro (HTTPS o localhost).
+  - L'anteprima dentro l'app Claude blocca JS/rete: provala in un browser vero.
+
+Dati meteo: Open-Meteo (gratuito, senza chiave API).

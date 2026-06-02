@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#04101e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rosa dei Venti">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Rosa dei Venti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sea-deep:#04101e;--sea:#0a1f38;--brass:#d9b25b;--brass-bright:#f0d488;--brass-dim:#8c6f33;
+    --cyan:#56d6c8;--cyan-glow:#7ff0e3;--parchment:#f1e9d2;--parchment-dim:#b9b09a;--line:rgba(217,178,91,.22);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{font-family:'Spectral',serif;color:var(--parchment);
+    background:radial-gradient(120% 90% at 50% -10%, #16395f 0%, var(--sea) 38%, var(--sea-deep) 100%);
+    min-height:100dvh;overflow-x:hidden;position:relative;
+    padding:env(safe-area-inset-top) 18px calc(env(safe-area-inset-bottom) + 24px);
+    display:flex;flex-direction:column;align-items:center}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;
+    background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.5),transparent),radial-gradient(1px 1px at 70% 20%,rgba(255,255,255,.35),transparent),radial-gradient(1px 1px at 40% 70%,rgba(255,255,255,.3),transparent),radial-gradient(1px 1px at 85% 60%,rgba(255,255,255,.4),transparent),radial-gradient(1px 1px at 55% 90%,rgba(255,255,255,.25),transparent)}
+  .wrap{width:100%;max-width:440px;position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:8px}
+  header{text-align:center;margin:14px 0 4px;animation:rise .8s ease both}
+  header .kicker{font-family:'Cinzel',serif;font-size:11px;letter-spacing:.42em;text-transform:uppercase;color:var(--brass);opacity:.85;padding-left:.42em}
+  header h1{font-family:'Cinzel',serif;font-weight:600;font-size:26px;letter-spacing:.04em;margin-top:6px;background:linear-gradient(180deg,var(--parchment),#cdbf95);-webkit-background-clip:text;background-clip:text;color:transparent}
+  header .rule{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:8px;color:var(--brass-dim)}
+  header .rule::before,header .rule::after{content:"";height:1px;width:46px;background:linear-gradient(90deg,transparent,var(--brass-dim))}
+  header .rule::after{transform:scaleX(-1)}
+  header .rule span{font-size:13px}
+  .compass-stage{position:relative;width:min(86vw,340px);aspect-ratio:1;margin:10px 0 6px;animation:rise 1s .1s ease both}
+  .compass-stage svg{width:100%;height:100%;overflow:visible;display:block}
+  .needle-group{transform-origin:200px 200px;transition:transform 1.1s cubic-bezier(.34,1.3,.4,1)}
+  .glow{filter:drop-shadow(0 0 10px var(--cyan-glow))}
+  .readout{text-align:center;animation:rise 1s .25s ease both;min-height:118px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+  .wind-name{font-family:'Cinzel',serif;font-weight:600;font-size:clamp(34px,11vw,46px);letter-spacing:.05em;line-height:1;background:linear-gradient(180deg,var(--brass-bright),var(--brass));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 26px rgba(217,178,91,.18)}
+  .from-line{font-size:15px;color:var(--parchment-dim)}
+  .from-line b{color:var(--parchment);font-weight:500}
+  .desc{font-style:italic;font-size:14px;color:var(--parchment-dim);max-width:320px;margin-top:2px;line-height:1.45}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;margin-top:16px;animation:rise 1s .35s ease both}
+  .stat{background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01));border:1px solid var(--line);border-radius:14px;padding:13px 14px;backdrop-filter:blur(6px)}
+  .stat .label{font-family:'Cinzel',serif;font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--brass);opacity:.85}
+  .stat .value{font-size:24px;font-weight:500;margin-top:5px;line-height:1}
+  .stat .value small{font-size:13px;color:var(--parchment-dim);font-weight:400;margin-left:3px}
+  .stat .sub{font-size:12px;color:var(--parchment-dim);margin-top:3px}
+  .controls{width:100%;margin-top:18px;display:flex;flex-direction:column;gap:10px;animation:rise 1s .45s ease both}
+  .loc-bar{display:flex;align-items:center;gap:10px;justify-content:center;color:var(--parchment-dim);font-size:13px}
+  .loc-bar .pin{color:var(--cyan)}
+  .search{display:flex;gap:8px}
+  .search input{flex:1;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:12px;padding:12px 14px;color:var(--parchment);font-family:'Spectral',serif;font-size:15px;outline:none}
+  .search input::placeholder{color:var(--parchment-dim);opacity:.7}
+  .search input:focus{border-color:var(--brass)}
+  button{cursor:pointer;font-family:'Cinzel',serif;border:none;background:none;color:inherit}
+  .btn{background:linear-gradient(180deg,var(--brass),var(--brass-dim));color:#1a1206;border-radius:12px;padding:0 18px;font-size:13px;letter-spacing:.08em;font-weight:600;box-shadow:0 4px 14px rgba(217,178,91,.25)}
+  .btn:active{transform:translateY(1px)}
+  .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .ghost{border:1px solid var(--line);border-radius:999px;padding:8px 14px;font-size:11px;letter-spacing:.12em;color:var(--parchment-dim);text-transform:uppercase}
+  .ghost.active{color:var(--brass-bright);border-color:var(--brass)}
+  .ghost:active{transform:translateY(1px)}
+  .hint{font-size:11.5px;color:var(--parchment-dim);text-align:center;opacity:.8;line-height:1.5;margin-top:6px;font-style:italic}
+  .msg{text-align:center;color:var(--parchment-dim);font-style:italic;font-size:14px;padding:6px 0}
+  .err{color:#e89b7a}
+  .spinner{width:22px;height:22px;border:2px solid var(--line);border-top-color:var(--brass);border-radius:50%;animation:spin .9s linear infinite;margin:0 auto}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{opacity:.55}50%{opacity:1}}
+  .pulse{animation:pulse 2.4s ease-in-out infinite}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker">Bussola del vento</div>
+    <h1>Rosa dei Venti</h1>
+    <div class="rule"><span>✦</span></div>
+  </header>
+
+  <div class="compass-stage">
+    <svg viewBox="0 0 400 400" id="compass" aria-label="Rosa dei venti">
+      <defs>
+        <radialGradient id="face" cx="50%" cy="42%" r="65%"><stop offset="0%" stop-color="#0e2a4a"/><stop offset="70%" stop-color="#081c33"/><stop offset="100%" stop-color="#04101e"/></radialGradient>
+        <linearGradient id="brassG" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f0d488"/><stop offset="50%" stop-color="#d9b25b"/><stop offset="100%" stop-color="#8c6f33"/></linearGradient>
+        <linearGradient id="starN" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#7ff0e3"/><stop offset="100%" stop-color="#2f8a82"/></linearGradient>
+      </defs>
+      <circle cx="200" cy="200" r="190" fill="url(#face)" stroke="url(#brassG)" stroke-width="2.5"/>
+      <circle cx="200" cy="200" r="178" fill="none" stroke="rgba(217,178,91,.25)" stroke-width="1"/>
+      <circle cx="200" cy="200" r="150" fill="none" stroke="rgba(217,178,91,.14)" stroke-width="1"/>
+      <g id="ticks"></g>
+      <g id="rose" opacity=".95"></g>
+      <g id="labels" font-family="Cinzel, serif"></g>
+      <g class="needle-group" id="needle">
+        <g class="glow"><polygon points="200,40 188,92 200,80 212,92" fill="url(#starN)"/><circle cx="200" cy="40" r="5.5" fill="#7ff0e3"/></g>
+        <line x1="200" y1="82" x2="200" y2="150" stroke="rgba(126,240,227,.35)" stroke-width="2" stroke-dasharray="3 5"/>
+      </g>
+      <circle cx="200" cy="200" r="14" fill="url(#brassG)"/>
+      <circle cx="200" cy="200" r="6" fill="#1a1206"/>
+    </svg>
+  </div>
+
+  <div class="readout" id="readout">
+    <div class="spinner"></div><div class="msg pulse">Carico i venti…</div>
+  </div>
+
+  <div class="stats" id="stats" style="display:none">
+    <div class="stat"><div class="label">Provenienza</div><div class="value" id="vFrom">—</div><div class="sub" id="vDeg"></div></div>
+    <div class="stat"><div class="label">Velocità</div><div class="value" id="vSpeed">—</div><div class="sub" id="vGust"></div></div>
+    <div class="stat"><div class="label">Forza</div><div class="value" id="vBeaufort">—</div><div class="sub" id="vBeaufortTxt"></div></div>
+    <div class="stat"><div class="label">Aria</div><div class="value" id="vTemp">—</div><div class="sub">temperatura</div></div>
+  </div>
+
+  <div class="controls">
+    <div class="loc-bar"><span class="pin">⚓</span><span id="locName">—</span></div>
+    <div class="search">
+      <input id="cityInput" type="text" placeholder="Cerca una località…" autocomplete="off">
+      <button class="btn" id="searchBtn">Cerca</button>
+    </div>
+    <div class="row">
+      <button class="ghost" id="geoBtn">📍 La mia posizione</button>
+      <button class="ghost active" data-unit="kmh">km/h</button>
+      <button class="ghost" data-unit="kn">nodi</button>
+      <button class="ghost" data-unit="ms">m/s</button>
+    </div>
+    <div class="hint">Convenzione nautica: il nome indica <b>da dove arriva</b> il vento. Dati in tempo reale da Open-Meteo.</div>
+  </div>
+</div>
+
+<script>
+const WINDS=[
+ {name:'Tramontana',card:'Nord',abbr:'N',deg:0,desc:'Vento freddo e secco che scende da settentrione.'},
+ {name:'Grecale',card:'Nord-Est',abbr:'NE',deg:45,desc:'Vento freddo e teso proveniente da nord-est.'},
+ {name:'Levante',card:'Est',abbr:'E',deg:90,desc:'Vento umido che soffia da oriente.'},
+ {name:'Scirocco',card:'Sud-Est',abbr:'SE',deg:135,desc:'Vento caldo e umido che risale dal Sahara.'},
+ {name:'Ostro',card:'Sud',abbr:'S',deg:180,desc:'Vento caldo e carico di umidità da mezzogiorno.'},
+ {name:'Libeccio',card:'Sud-Ovest',abbr:'SO',deg:225,desc:'Vento di sud-ovest, spesso portatore di mareggiate.'},
+ {name:'Ponente',card:'Ovest',abbr:'O',deg:270,desc:'Vento fresco che soffia da occidente.'},
+ {name:'Maestrale',card:'Nord-Ovest',abbr:'NO',deg:315,desc:'Vento freddo, teso e asciutto da nord-ovest.'}
+];
+const ABBR16=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSO','SO','OSO','O','ONO','NO','NNO'];
+function beaufort(k){const t=[[1,'Calma'],[5,'Bava di vento'],[11,'Brezza leggera'],[19,'Brezza tesa'],[28,'Vento moderato'],[38,'Vento teso'],[49,'Vento fresco'],[61,'Vento forte'],[74,'Burrasca'],[88,'Burrasca forte'],[102,'Tempesta'],[117,'Tempesta violenta']];for(let i=0;i<t.length;i++){if(k<=t[i][0])return{n:i,txt:t[i][1]};}return{n:12,txt:'Uragano'};}
+let lastKmh=0,lastGust=0,unit='kmh';
+function fmt(k){if(k==null)return{v:'—',u:''};let v=k,u='km/h';if(unit==='kn'){v=k*0.539957;u='nodi';}else if(unit==='ms'){v=k/3.6;u='m/s';}return{v:v.toFixed(unit==='ms'?1:0),u};}
+
+function buildCompass(){
+  const ticks=document.getElementById('ticks');
+  for(let d=0;d<360;d+=5){const major=d%45===0,mid=d%15===0,len=major?16:(mid?10:6);const a=(d-90)*Math.PI/180,r1=178,r2=178-len;
+    const ln=document.createElementNS('http://www.w3.org/2000/svg','line');
+    ln.setAttribute('x1',200+r1*Math.cos(a));ln.setAttribute('y1',200+r1*Math.sin(a));ln.setAttribute('x2',200+r2*Math.cos(a));ln.setAttribute('y2',200+r2*Math.sin(a));
+    ln.setAttribute('stroke',major?'rgba(217,178,91,.9)':'rgba(217,178,91,.35)');ln.setAttribute('stroke-width',major?2:1);ticks.appendChild(ln);}
+  const rose=document.getElementById('rose');
+  for(let i=0;i<16;i++){const a=(i*22.5-90)*Math.PI/180,long=i%2===0,r=long?150:96,tip={x:200+r*Math.cos(a),y:200+r*Math.sin(a)},a1=a+0.10,a2=a-0.10,base=long?26:18,
+    b1={x:200+base*Math.cos(a1),y:200+base*Math.sin(a1)},b2={x:200+base*Math.cos(a2),y:200+base*Math.sin(a2)};
+    const p=document.createElementNS('http://www.w3.org/2000/svg','polygon');p.setAttribute('points',`${tip.x},${tip.y} ${b1.x},${b1.y} ${b2.x},${b2.y}`);
+    p.setAttribute('fill',long?'url(#brassG)':'rgba(217,178,91,.35)');p.setAttribute('opacity',long?'.9':'.6');rose.appendChild(p);}
+  const labels=document.getElementById('labels');
+  WINDS.forEach(w=>{const a=(w.deg-90)*Math.PI/180,r=168,x=200+r*Math.cos(a),y=200+r*Math.sin(a);
+    const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',x);t.setAttribute('y',y+4);t.setAttribute('text-anchor','middle');
+    t.setAttribute('fill',w.deg===0?'#7ff0e3':'#d9b25b');t.setAttribute('font-size',w.deg%90===0?16:12);t.setAttribute('font-weight','600');t.textContent=w.abbr;labels.appendChild(t);});
+}
+function render(data){
+  const deg=Math.round(data.dir),idx8=((Math.round(deg/45)%8)+8)%8,w=WINDS[idx8],abbr16=ABBR16[((Math.round(deg/22.5)%16)+16)%16];
+  document.getElementById('needle').style.transform=`rotate(${deg}deg)`;
+  document.getElementById('readout').innerHTML=`<div class="wind-name">${w.name}</div><div class="from-line">arriva da <b>${w.card}</b> · <b>${deg}°</b> (${abbr16})</div><div class="desc">${w.desc}</div>`;
+  lastKmh=data.speed;lastGust=data.gust;document.getElementById('stats').style.display='grid';updateUnits();
+  document.getElementById('vFrom').textContent=w.card;document.getElementById('vDeg').textContent=deg+'° dalla rosa';
+  const bf=beaufort(data.speed);document.getElementById('vBeaufort').textContent=bf.n;document.getElementById('vBeaufortTxt').textContent=bf.txt;
+  document.getElementById('vTemp').innerHTML=data.temp!=null?Math.round(data.temp)+'<small>°C</small>':'—';
+}
+function updateUnits(){const s=fmt(lastKmh),g=fmt(lastGust);document.getElementById('vSpeed').innerHTML=s.v+'<small>'+s.u+'</small>';document.getElementById('vGust').textContent=lastGust?'raffiche '+g.v+' '+g.u:'raffiche n.d.';}
+function setLoading(t){document.getElementById('readout').innerHTML=`<div class="spinner"></div><div class="msg pulse">${t}</div>`;document.getElementById('stats').style.display='none';}
+let lastData=null,lastLabel='';
+function setError(html){document.getElementById('readout').innerHTML=`<div class="msg err">${html}</div>`;document.getElementById('stats').style.display='none';}
+// fetch con timeout: se la rete è bloccata o stalla, non resta mai appeso
+function fetchT(url,ms){const ac=new AbortController();const id=setTimeout(()=>ac.abort(),ms||8000);return fetch(url,{signal:ac.signal}).finally(()=>clearTimeout(id));}
+
+async function loadWind(lat,lon,label,isInitial){
+  setLoading(isInitial?'Carico i venti…':'Leggo il vento…');
+  try{
+    const r=await fetchT(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,wind_speed_10m,wind_direction_10m,wind_gusts_10m&wind_speed_unit=kmh`);
+    if(!r.ok)throw 0;const j=await r.json();if(!j.current)throw 0;const c=j.current;
+    lastLabel=label||`${(+lat).toFixed(2)}, ${(+lon).toFixed(2)}`;
+    lastData={dir:c.wind_direction_10m,speed:c.wind_speed_10m,gust:c.wind_gusts_10m,temp:c.temperature_2m};
+    document.getElementById('locName').textContent=lastLabel;
+    render(lastData);
+  }catch(e){
+    setError(isInitial
+      ? 'I dati non si caricano in questa anteprima. Tocca <b>•••</b> in alto e scegli <b>“Apri in Safari/Chrome”</b>, poi usa <b>Cerca</b>.<br><button id="retry" class="ghost" style="margin-top:12px">Riprova</button>'
+      : 'Impossibile recuperare i dati. Controlla la connessione o cerca un’altra località.<br><button id="retry" class="ghost" style="margin-top:12px">Riprova</button>');
+    const rb=document.getElementById('retry');if(rb)rb.onclick=()=>loadWind(lat,lon,label,isInitial);
+  }
+}
+async function searchCity(name){
+  setLoading('Cerco la località…');
+  try{
+    const r=await fetchT(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(name)}&count=1&language=it&format=json`);
+    const j=await r.json();if(!j.results||!j.results.length){setError('Località non trovata. Prova un altro nome.');return;}
+    const p=j.results[0],lbl=[p.name,p.admin1,p.country_code].filter(Boolean).join(', ');loadWind(p.latitude,p.longitude,lbl);
+  }catch(e){setError('Errore nella ricerca. Riprova.');}
+}
+function useGeo(){
+  if(!navigator.geolocation){
+    if(lastData){render(lastData);document.getElementById('locName').textContent=lastLabel;}
+    else setError('Geolocalizzazione non disponibile qui. Usa <b>Cerca</b>.');
+    return;
+  }
+  setLoading('Cerco la tua posizione…');
+  navigator.geolocation.getCurrentPosition(
+    pos=>loadWind(pos.coords.latitude,pos.coords.longitude,'La tua posizione'),
+    ()=>{ // negata/non disponibile (es. anteprima o file://): torna ai dati precedenti
+      if(lastData){render(lastData);document.getElementById('locName').textContent=lastLabel+' · GPS non disponibile qui';}
+      else setError('Il GPS qui è bloccato (serve HTTPS). Usa <b>Cerca</b> o apri l’app online.');
+    },
+    {enableHighAccuracy:false,timeout:9000,maximumAge:300000}
+  );
+}
+document.getElementById('searchBtn').onclick=()=>{const v=document.getElementById('cityInput').value.trim();if(v)searchCity(v);};
+document.getElementById('cityInput').addEventListener('keydown',e=>{if(e.key==='Enter'){const v=e.target.value.trim();if(v)searchCity(v);}});
+document.getElementById('geoBtn').onclick=useGeo;
+document.querySelectorAll('[data-unit]').forEach(b=>b.onclick=()=>{unit=b.dataset.unit;document.querySelectorAll('[data-unit]').forEach(x=>x.classList.remove('active'));b.classList.add('active');if(lastKmh)updateUnits();});
+
+buildCompass();
+// 1) Carica subito dati reali (Roma) così la bussola è sempre viva
+loadWind(41.9028,12.4964,'Roma, IT',true);
+// 2) Poi prova la posizione del dispositivo (la sovrascrive se concessa)
+if(navigator.geolocation && (location.protocol==='https:'||location.hostname==='localhost')){
+  navigator.geolocation.getCurrentPosition(
+    pos=>loadWind(pos.coords.latitude,pos.coords.longitude,'La tua posizione'),
+    ()=>{}, {enableHighAccuracy:false,timeout:8000,maximumAge:300000}
+  );
+}
+// Service worker (solo su http/https, non su file://)
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+</script>
+</body>
+</html>
